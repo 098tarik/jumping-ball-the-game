@@ -1,0 +1,40 @@
+# Minimal makefile for the side-scroller game
+# Usage: mingw32-make -f Makefile.simple [TARGET=game] [BUILD=debug|release] [RAYLIB_PATH=C:/raylib/raylib]
+
+TARGET        ?= game
+BUILD         ?= debug
+RAYLIB_PATH   ?= C:/raylib/raylib
+CXX           := g++
+
+CFLAGS_COMMON = -Wall -std=c++14
+ifeq ($(BUILD),debug)
+CFLAGS_BUILD  = -g -O0
+else
+CFLAGS_BUILD  = -O2
+endif
+CFLAGS        = $(CFLAGS_COMMON) $(CFLAGS_BUILD)
+
+INCLUDE_PATHS = -Isrc -I$(RAYLIB_PATH)/src -I$(RAYLIB_PATH)/src/external
+LDFLAGS       = -L$(RAYLIB_PATH)/src
+LDLIBS        = -lraylib -lopengl32 -lgdi32 -lwinmm
+
+SOURCES_CPP = \
+  src/main.cpp \
+  src/game/Game.cpp \
+  src/player/Player.cpp \
+  src/level/Level.cpp
+
+OBJECTS = $(SOURCES_CPP:.cpp=.o)
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CXX) -o $@ $(OBJECTS) $(LDFLAGS) $(LDLIBS)
+
+%.o: %.cpp
+	$(CXX) $(CFLAGS) $(INCLUDE_PATHS) -c $< -o $@
+
+clean:
+	del /q $(OBJECTS) $(TARGET).exe 2>NUL || true
+
+.PHONY: all clean
